@@ -25,6 +25,9 @@ global_vars = dict()
 def interpret_codeblock(codeblock: list, local_vars: dict, scope: Literal["global", "local"]):
     pass
 
+class Baeng:
+    def __init__(self, code: list):
+        self.code = code
 
 if __name__ == "__main__":
     pass
