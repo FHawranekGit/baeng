@@ -8,16 +8,18 @@ from scipy.io import wavfile
 
 class ImpulseResponse:
     def __init__(self, fs: int, duration: int | float):
-        pass
+        self.data = np.zeros(int(fs * duration), dtype=np.float32)
+        self.fs = fs
+        self.duration = duration
 
-    def __getitem__(self, index: int | float) -> np.float32:
-        pass
+    def __getitem__(self, index: int) -> np.float32:
+        return self.data[index]
 
-    def __setitem__(self, index: int | float, value: float):
-        pass
+    def __setitem__(self, index: int, value: float):
+        self.data[index] = value
 
     def to_numpy(self) -> np.ndarray:
-        pass
+        return self.data
 
 
 class Baeng:
@@ -26,7 +28,7 @@ class Baeng:
 
         self.global_vars = dict()
 
-        self.IR = ImpulseResponse(*self.script["IR"])
+        self.IR = ImpulseResponse(self.script["IR"][0], self.script["IR"][1])
 
         self.user_functions = script.copy()
         self.user_functions.pop("IR")
@@ -70,6 +72,7 @@ class Baeng:
 
 
     def _interpret_codeblock(self, codeblock: list, local_vars: dict, scope: Literal["global", "local"]):
+        print(codeblock)
         for code_line in codeblock:
             try:
                 self.operators[code_line[0]](*code_line[1:], scope=scope)
@@ -87,6 +90,8 @@ class Baeng:
                                 #global vars
                                 parameter = self._replace_vars_in_string(parameter, self.global_vars)
                                 parameter_values.append(self._eval_string(parameter))
+                            elif parameter is int or parameter is float:
+                                parameter_values.append(parameter)
 
                         parameters = dict(zip(parameter_names, parameter_values))
                         self._interpret_codeblock(
@@ -103,4 +108,7 @@ class Baeng:
 
 
 if __name__ == "__main__":
-    pass
+    with open("Beispielcode.baeng", "rt") as fh:
+        script = json.load(fh)
+
+    Baeng(script).run()
