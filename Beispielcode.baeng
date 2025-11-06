@@ -1,0 +1,26 @@
+{
+	"IR": [48000, 2, "output.wav"],
+	"reflections": {
+		"PARAMS": ["T"],
+		"CODE": [
+			["if", "SAMPLEPOS % T", [
+				["setSample", "SAMPLEPOS", 0.5],
+				["setSample", "SAMPLEPOS + 10", 0.2]
+			]],
+			["define", "currentVal", ["readSample", "SAMPLEPOS"]],
+			["if", "abs(currentVal) < 0.3", [
+				["setSample", "SAMPLEPOS", "-currentVal + 0.1"]
+			]]
+		]
+	},
+	"CODE": [
+		["define", "T", 150],
+		["while", "abs(IR[0]) < 0.5", [
+			["reflections", "T"],
+			["define", "T", "T + 10"]
+		]]
+	]
+}
+
+
+
