@@ -14,10 +14,10 @@
 		]
 	},
 	"CODE": [
-		["define", "T", 150],
+		["define", "t", 150],
 		["while", "abs(IR[0]) < 0.5", [
-			["reflections", "T"],
-			["define", "T", "T + 10"]
+			["reflections", ["t"]],
+			["define", "t", "t + 10"]
 		]]
 	]
 }
