@@ -16,8 +16,6 @@ class ImpulseResponse:
     def __setitem__(self, index: int | float, value: float):
         pass
 
-    def __
-
     def to_numpy(self) -> np.ndarray:
         pass
 
@@ -58,6 +56,7 @@ class Baeng:
         pass
 
     def _eval_string(self, string):
+        out = None
         exec("out = " + string)
         return out
 
