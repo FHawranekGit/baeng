@@ -12,7 +12,7 @@ class ImpulseResponse:
         self.fs = fs
         self.duration = duration
 
-    def __getitem__(self, index: int) -> np.float32:
+    def __getitem__(self, index: int):
         return self.data[index]
 
     def __setitem__(self, index: int, value: float):
