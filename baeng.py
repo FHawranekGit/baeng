@@ -7,7 +7,6 @@ from scipy.io import wavfile
 from itertools import cycle
 
 
-
 class ImpulseResponse:
     def __init__(self, fs: int, duration: int | float):
         self.data = np.zeros(int(fs * duration), dtype=np.float32)
@@ -93,9 +92,11 @@ class Baeng:
         else:
             raise TypeError
 
-
     def _interpret_codeblock(
-        self, codeblock: list, parameters: dict, scope: Literal["global", "local", "stay_local"]
+        self,
+        codeblock: list,
+        parameters: dict,
+        scope: Literal["global", "local", "stay_local"],
     ):
         print(codeblock)
         if scope == "local":
