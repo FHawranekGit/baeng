@@ -7,8 +7,8 @@
 				["setSample", "SAMPLEPOS", 0.5]
 			]],
 			["define", "currentVal", ["readSample", "SAMPLEPOS"]],
-			["if", "abs(currentVal) < 0.3", [
-				["setSample", "SAMPLEPOS", "-currentVal + 0.1"]
+			["if", "abs(currentVal) < 0.5", [
+				["setSample", "SAMPLEPOS", "currentVal + 0.1"]
 			]]
 		]
 	},
