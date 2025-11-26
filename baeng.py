@@ -55,7 +55,8 @@ class Baeng:
     def _while_op(self, condition, code_block, scope):
         if scope == "local":
             scope = "stay_local"
-        pass
+        while self._fetch_parameter(condition, scope=scope):
+            self._interpret_codeblock(code_block, parameters={}, scope=scope)
 
     def _define_op(self, name, value, scope):
         evaluated_value = self._fetch_parameter(value, scope=scope)
