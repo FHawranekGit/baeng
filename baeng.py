@@ -78,7 +78,6 @@ class Baeng:
         all_variables = self.local_variables[-1].copy()
         all_variables.update(self.global_vars)
         all_variables.update({"SAMPLEPOS": self.SAMPLEPOS, "IR": self.IR})
-        print(all_variables)
         out = eval(string, {}, all_variables)
         return out
 
@@ -86,7 +85,6 @@ class Baeng:
         if type(obj) is list:
             return self.operators[obj[0]](*obj[1:], scope=scope)
         elif type(obj) is str:
-            print("is string")
             return self._eval_string(obj)
         elif type(obj) is int or type(obj) is float:
             return obj
@@ -99,7 +97,6 @@ class Baeng:
         parameters: dict,
         scope: Literal["global", "local", "stay_local"],
     ):
-        print(codeblock)
         if scope == "local":
             self.local_variables.append(parameters)
         for code_line in codeblock:
