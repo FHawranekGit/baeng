@@ -2,6 +2,7 @@ import sys
 import json
 from typing import Literal
 import numpy as np
+import wave
 import re
 from scipy.io import wavfile
 from itertools import cycle
@@ -65,7 +66,7 @@ class ImpulseResponse:
 
     def to_numpy(self) -> np.ndarray:
         """
-        Export the impulse response as a numpy ndarray, containing all sample values
+        Export the impulse response as a numpy ndarray, containing all sample values.
 
         Returns
         -------
@@ -74,6 +75,28 @@ class ImpulseResponse:
         """
 
         return self.data
+
+    def export_wav_16bit(self, path: str):
+        """
+        Export the impulse response as 16-bit PCM WAV.
+
+        Parameters
+        ----------
+        path : str
+            Output file path
+        """
+        # TODO: check/handle data out of range [-1, 1] (np.clip?)
+
+        # Scale float32 [-1.0, 1.0] to int16 [-32768, 32767]
+        pcm16 = (self.data * 32767).astype(np.int16)
+
+        with wave.open(path, "wb") as w:
+            # 1 channel - mono
+            w.setnchannels(1)
+            # 2 bytes per sample
+            w.setsampwidth(2)
+            w.setframerate(self.fs)
+            w.writeframes(pcm16.tobytes())
 
 
 class Baeng:
@@ -374,7 +397,8 @@ class Baeng:
             self.script["CODE"], parameters=dict(), scope="global"
         )
 
-        # TODO: export .wav (at end of code or as operator)
+        # export.wav at the end of code
+        self.IR.export_wav_16bit(path=self.script["IR"][2])
 
 
 if __name__ == "__main__":
