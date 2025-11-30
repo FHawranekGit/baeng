@@ -85,6 +85,7 @@ class ImpulseResponse:
         path : str
             Output file path
         """
+
         # TODO: check/handle data out of range [-1, 1] (np.clip?)
 
         # Scale float32 [-1.0, 1.0] to int16 [-32768, 32767]
@@ -138,6 +139,7 @@ class Baeng:
             "define": self._define_op,
             "setSample": self._set_sample_op,
             "readSample": self._read_sample_op,
+            "export": self._export_op
         }
 
     def _if_op(self, condition, code_block, scope):
@@ -176,6 +178,7 @@ class Baeng:
         scope : Literal["global", "local", "stay_local"]
             current scope when calling "while"
         """
+
         if scope == "local":
             # when inside function, no deeper scope layer should be generated
             scope = "stay_local"
@@ -253,6 +256,18 @@ class Baeng:
         # return sample value at selected index
         value = self.IR[index]
         return value
+
+    def _export_op(self, filepath, scope):
+        """
+        Exports current IR to a given filename
+
+        Parameters
+        ----------
+        filepath: str
+            The file path to store the IR to, ends with .wav
+        """
+
+        self.IR.export_wav_16bit(filepath)
 
     def _eval_string(self, string):
         """
