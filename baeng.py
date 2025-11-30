@@ -378,8 +378,22 @@ class Baeng:
 
 
 if __name__ == "__main__":
-    # TODO: open file from sys args
-    with open("Beispielcode.baeng", "rt") as fh:
-        script = json.load(fh)
+    # check if file path is given as an argument
+    if len(sys.argv) < 2:
+        raise SystemExit("Missing path: <filename.baeng>")
+
+    # fetch file path
+    path = sys.argv[1]
+
+    # check if file is .baeng
+    if not path.endswith(".baeng"):
+        raise SystemExit("File is not a .baeng")
+
+    try:
+        # load script from file
+        with open(path, "rt") as fh:
+            script = json.load(fh)
+    except FileNotFoundError:
+        raise SystemExit(f"File not found: {path}")
 
     Baeng(script).run()
