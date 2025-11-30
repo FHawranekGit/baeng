@@ -1,0 +1,87 @@
+{
+	"IR": [16000, 1, "output.wav"],
+
+	"initial_reflections": {
+		"PARAMS": ["period", "power"],
+		"CODE": [
+			["if", "SAMPLEPOS % period == 0 and SAMPLEPOS != 0", [
+				["setSample", "SAMPLEPOS", "- (period / SAMPLEPOS) ** 1.2"]
+			]],
+            ["if", "SAMPLEPOS / 2 % period == 0 and SAMPLEPOS != 0", [
+				["setSample", "SAMPLEPOS", "(period / SAMPLEPOS) ** 1.2"]
+			]]
+        ]
+	},
+
+    "small_reflections": {
+        "PARAMS": ["period", "factor"],
+        "CODE": [
+            ["define", "lastValue", ["readSample", "SAMPLEPOS - period"]],
+            ["define", "currentValue", ["readSample", "SAMPLEPOS"]],
+
+            ["if", "SAMPLEPOS > period and lastValue != 0 and currentValue == 0", [
+                ["setSample", "SAMPLEPOS", "- lastValue * factor"]
+            ]]
+        ]
+    },
+
+    "moving_average": {
+        "PARAMS": ["windowSize"],
+        "CODE": [
+            ["define", "sum", 0],
+            ["define", "count", 0],
+            ["define", "i", 0],
+            ["define", "idxValue", 0],
+
+            ["while", "i < windowSize", [
+                ["if", "SAMPLEPOS - i >= 0", [
+                    ["define", "idxValue", ["readSample", "SAMPLEPOS - i"]],
+                    ["define", "sum", "sum + idxValue"],
+                    ["define", "count", "count + 1"]
+                ]],
+                ["define", "i", "i + 1"]
+            ]],
+
+            ["define", "average", "sum / count"],
+            ["setSample", "SAMPLEPOS", "average"]
+        ]
+    },
+
+	"CODE": [
+        ["define", "T", 800],
+        ["define", "P", 1.2],
+        ["initial_reflections", ["T", "P"]],
+        ["export", "first_initial_reflections.wav"],
+        ["print", "created first_initial_reflections.wav"],
+
+        ["define", "T", 1234],
+        ["define", "P", 1.35],
+        ["initial_reflections", ["T", "P"]],
+        ["export", "second_initial_reflections.wav"],
+        ["print", "created second_initial_reflections.wav"],
+
+        ["define", "N", 5],
+        ["define", "idx", 0],
+        ["define", "T_small", 128],
+        ["define", "F", 0.8],
+
+        ["while", "idx < N", [
+            ["small_reflections", ["T_small", "F"]],
+            ["define", "T_small", "int(T_small / 3)"],
+
+            ["define", "F", "F / 3"],
+            ["define", "idx", "idx + 1"]
+        ]],
+        ["export", "small_reflections.wav"],
+        ["print", "created small_reflections.wav"],
+
+        ["define", "W", 3],
+        ["moving_average", ["W"]],
+        ["export", "first_moving_average.wav"],
+        ["print", "created first_moving_average.wav"],
+
+        ["define", "W", 3],
+        ["moving_average", ["W"]],
+        ["print", "all done, created output.wav"]
+    ]
+}
