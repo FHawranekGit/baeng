@@ -139,7 +139,7 @@ class Baeng:
             "define": self._define_op,
             "setSample": self._set_sample_op,
             "readSample": self._read_sample_op,
-            "export": self._export_op
+            "export": self._export_op,
         }
 
     def _if_op(self, condition, code_block, scope):
@@ -288,7 +288,9 @@ class Baeng:
 
         # assemble dict of local variables from the deepest scope and global variables
         all_variables = self.local_variables[-1].copy()
-        all_variables.update(self.global_vars)  # global variables overwrite local duplicates
+        all_variables.update(
+            self.global_vars
+        )  # global variables overwrite local duplicates
 
         # add SAMPLEPOS and IR as variables
         all_variables.update({"SAMPLEPOS": self.SAMPLEPOS, "IR": self.IR})
