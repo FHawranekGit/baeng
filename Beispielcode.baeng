@@ -19,7 +19,8 @@
 		["while", "abs(IR[0]) < 0.5", [
 			["reflections", ["t"]],
 			["define", "t", "t + 10"]
-		]]
+		]],
+        ["print", "done!"]
 	]
 }
 

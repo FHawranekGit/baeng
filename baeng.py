@@ -140,6 +140,7 @@ class Baeng:
             "setSample": self._set_sample_op,
             "readSample": self._read_sample_op,
             "export": self._export_op,
+            "print": self._print_op
         }
 
     def _if_op(self, condition, code_block, scope):
@@ -268,6 +269,18 @@ class Baeng:
         """
 
         self.IR.export_wav_16bit(filepath)
+
+    def _print_op(self, string, scope):
+        """
+        Prints the given string to the console
+
+        Parameters
+        ----------
+        string: str
+            The string to be printed
+        """
+
+        print(string)
 
     def _eval_string(self, string):
         """
