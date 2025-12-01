@@ -286,6 +286,7 @@ class Baeng:
             The string to be printed
         """
 
+        # TODO: evaluate string
         print(string)
 
     def _eval_string(self, string):
@@ -311,6 +312,7 @@ class Baeng:
             self.global_vars
         )  # global variables overwrite local duplicates
 
+        # TODO: add np random variable
         # add SAMPLEPOS and IR as variables
         all_variables.update({"SAMPLEPOS": self.SAMPLEPOS, "IR": self.IR})
 
