@@ -133,7 +133,7 @@ class Baeng:
         self.user_functions.pop("IR")
         self.user_functions.pop("CODE")
 
-        # TODO: make constant attribute
+        # TODO: make constant attribute -> failed...
         # dict for mapping baeng code to operators
         self.operators = {
             "if": self._if_op,
