@@ -278,18 +278,20 @@ class Baeng:
 
         self.IR.export_wav_16bit(filepath)
 
-    def _print_op(self, string, scope):
+    def _print_op(self, obj, scope):
         """
         Prints the given string to the console
 
         Parameters
         ----------
-        string: str
-            The string to be printed
+        obj: list | string | int | float
+            The object containing a command (list, e.g. readSample), expression (string)
+            or number to be printed
+        scope : Literal["global", "local", "stay_local"]
+            current scope when calling "readSample"
         """
 
-        # TODO: evaluate string
-        print(string)
+        print(self._fetch_parameter(obj, scope=scope))
 
     def _eval_string(self, string):
         """
