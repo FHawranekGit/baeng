@@ -50,7 +50,7 @@
 	"CODE": [
         ["define", "T", 800],
         ["define", "P", 1.2],
-        ["initial_reflections", ["T", "P"]],
+        ["initial_reflections", {"period": "T", "power": "P"}],
         ["export", "first_initial_reflections.wav"],
         ["print", "created first_initial_reflections.wav"],
 
