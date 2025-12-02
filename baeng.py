@@ -396,23 +396,23 @@ class Baeng:
                 # if code line is no operator try to interpret as user_function
                 if code_line[0] in self.user_functions:
                     # code line is a user_function
+
+                    # evaluate every given parameter of the function call
+                    parameter_names = self.user_functions[code_line[0]]["PARAMS"]
+                    parameter_values = []
+                    for parameter in code_line[1]:
+                        parameter_values.append(
+                            self._fetch_parameter(parameter, scope=scope)
+                        )
+
+                    # pack parameter names and values to dict
+                    new_parameters = dict(zip(parameter_names, parameter_values))
+
                     for sample_position in range(self.IR.fs * self.IR.duration):
                         # iterate over each sample
 
                         # safe current sample_position in attributes
                         self.SAMPLEPOS = sample_position
-
-                        # TODO: evaluate parameters outside of loop
-                        # evaluate every given parameter of the function call
-                        parameter_names = self.user_functions[code_line[0]]["PARAMS"]
-                        parameter_values = []
-                        for parameter in code_line[1]:
-                            parameter_values.append(
-                                self._fetch_parameter(parameter, scope=scope)
-                            )
-
-                        # pack parameter names and values to dict
-                        new_parameters = dict(zip(parameter_names, parameter_values))
 
                         # execute user_function as code with given parameters as local variables
                         self._interpret_codeblock(
