@@ -356,6 +356,63 @@ class Baeng:
             # unknown object type
             raise TypeError
 
+    def _evaluate_function_parameters(self, code_line: list, scope: str) -> dict:
+        """
+        Evaluate and pack the given parameters of a function call to a dictionary with specific values
+
+        Parameters
+        ----------
+        code_line : list
+            The code line that calls the function in the form of
+            [function_name, [positional arguments, ...]] or
+            [function_name, {keyword: arguments, ...}]
+        scope : Literal["global", "local", "stay_local"]
+            current scope when evaluating the arguments
+
+        Returns
+        -------
+        out : dict
+            Packed dictionary with the parameters in the form of
+            {keyword: arguments, ...}
+        """
+
+        parameter_names = self.user_functions[code_line[0]]["PARAMS"]
+
+        # evaluate every given parameter of the function call
+        if type(code_line[1]) is list:
+            parameter_values = []
+            for parameter in code_line[1]:
+                parameter_values.append(
+                    self._fetch_parameter(parameter, scope=scope)
+                )
+
+            # pack parameter names and values to dict
+            return dict(zip(parameter_names, parameter_values))
+
+        elif type(code_line[1]) is dict:
+            # check if all required parameters are given
+            for parameter_name in parameter_names:
+                if parameter_name not in code_line[1]:
+                    raise TypeError(
+                        f"{code_line[0]} missing required argument '{parameter_name}'"
+                    )
+
+            # evaluate all parameters
+            evaluated_parameters = dict()
+
+            for parameter_name, parameter_value in code_line[1].items():
+                # check if given parameter is expected
+                if parameter_name not in parameter_names:
+                    raise TypeError(
+                        f"{code_line[0]} got an unexpected argument '{parameter_name}'"
+                    )
+
+                # evaluate parameter
+                evaluated_parameters[parameter_name] = self._fetch_parameter(parameter_value, scope=scope)
+
+            # return parameters in already packed form
+            return evaluated_parameters
+
     def _interpret_codeblock(
         self,
         code_block: list,
@@ -397,16 +454,7 @@ class Baeng:
                 if code_line[0] in self.user_functions:
                     # code line is a user_function
 
-                    # evaluate every given parameter of the function call
-                    parameter_names = self.user_functions[code_line[0]]["PARAMS"]
-                    parameter_values = []
-                    for parameter in code_line[1]:
-                        parameter_values.append(
-                            self._fetch_parameter(parameter, scope=scope)
-                        )
-
-                    # pack parameter names and values to dict
-                    new_parameters = dict(zip(parameter_names, parameter_values))
+                    new_parameters = self._evaluate_function_parameters(code_line, scope=scope)
 
                     for sample_position in range(self.IR.fs * self.IR.duration):
                         # iterate over each sample
