@@ -5,9 +5,7 @@ import json
 from typing import Literal
 import numpy as np
 import wave
-import re
-from scipy.io import wavfile
-from itertools import cycle
+from baengParser import translate
 
 
 class ImpulseResponse:
@@ -505,9 +503,22 @@ if __name__ == "__main__":
 
     try:
         # load script from file
+        # with open(path, "rt") as fh:
+        #    script = json.load(fh)
         with open(path, "rt") as fh:
-            script = json.load(fh)
+            content = fh.read()
+
+        try:
+            # try opening as JSON
+            script = json.loads(content)
+        except json.JSONDecodeError:
+            # parse if not JSON
+            script = translate(content)
+
+        Baeng(script).run()
+
     except FileNotFoundError:
         raise SystemExit(f"File not found: {path}")
 
-    Baeng(script).run()
+    except Exception as e:
+        raise SystemExit(f"Error: {e}")
