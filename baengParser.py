@@ -1,3 +1,4 @@
+import sys
 import json
 import re
 
@@ -211,24 +212,7 @@ def parse_block(lines, i=0, indent=0):
             left, right = line.split("=", 1)
             var = left.strip()
             rhs = right.strip()
-            # # If rhs is a simple function call like readSample(X), convert to nested list
-            # parsed_rhs = None
-            # # detect simple single-function call without operators
-            # if _simple_call_re.match(rhs) and not any(op in rhs for op in ["+", "-", "*", "/", "<", ">", "%", " and ", " or "]):
-            #     parsed_rhs = parse_atom(rhs)
-            #     # In the IR sample you provided, define uses ["define","name", ["readSample","SAMPLEPOS"]]
-            #     # If parse_atom returned a nested list [fname, arg], use that; else keep as string
-            # else:
-            #     # numeric or quoted string?
-            #     num = try_number(rhs)
-            #     if num is not None:
-            #         parsed_rhs = num
-            #     elif is_quoted(rhs):
-            #         parsed_rhs = strip_quotes(rhs)
-            #     else:
-            #         # keep expression as string (e.g., currentVal + 0.1)
-            #         parsed_rhs = rhs
-            parsed_rhs = parse_atom(rhs) # testing
+            parsed_rhs = parse_atom(rhs)
             code.append(["define", var, parsed_rhs])
             i += 1
             continue
@@ -288,78 +272,28 @@ def translate(source_text):
     return result
 
 
-# -------------------------
-# Example usage
-# -------------------------
-
 if __name__ == "__main__":
-    source = """ 
-set IR: (16000, 1, "output.wav")
+    # check if file path is given as an argument
+    if len(sys.argv) < 2:
+        raise SystemExit("Missing path: <filename.baeng>")
 
-func initial_reflections(period, power):
-    if SAMPLEPOS % period == 0 and SAMPLEPOS != 0:
-        setSample(SAMPLEPOS, - (period / SAMPLEPOS) ** power)
+    # fetch file path
+    path = sys.argv[1]
 
-    if SAMPLEPOS / 2 % period == 0 and SAMPLEPOS != 0:
-        setSample(SAMPLEPOS, (period / SAMPLEPOS) ** power)
+    # check if file is .baeng
+    if not path.endswith(".baeng"):
+        raise SystemExit("File is not a .baeng")
 
-func small_reflections(period, factor):
-    lastValue = readSample(SAMPLEPOS - period)
-    currentValue = readSample(SAMPLEPOS)
+    try:
+        with open(path, "rt") as fh:
+            content = fh.read()
 
-    if SAMPLEPOS > period and lastValue != 0 and currentValue == 0:
-        setSample(SAMPLEPOS, - lastValue * factor)
+        program = translate(content)
 
-func moving_average(windowSize):
-    sum = 0
-    count = 0
-    i = 0
-    idxValue = 0
+        print(json.dumps(program, indent=4))
 
-    while i < windowSize:
-        if SAMPLEPOS - i >= 0:
-            idxValue = readSample(SAMPLEPOS - i)
-            sum = sum + idxValue
-            count = count + 1
-        i = i + 1
+    except FileNotFoundError:
+        raise SystemExit(f"File not found: {path}")
 
-    average = sum / count
-    setSample(SAMPLEPOS, average)
-
-T = 800
-P = 1.2
-initial_reflections(T, P)
-export("first_initial_reflections.wav")
-print('created first_initial_reflections.wav')
-
-T = 1234
-P = 1.35
-initial_reflections(T, P)
-export("second_initial_reflections.wav")
-print('created second_initial_reflections.wav')
-
-N = 5
-idx = 0
-T_small = 128
-F = 0.8
-
-while idx < N:
-    small_reflections(T_small, F)
-    T_small = int(T_small / 3)
-    F = F / 3
-    idx = idx + 1
-
-export("small_reflections.wav")
-print('created small_reflections.wav')
-
-W = 3
-moving_average(W)
-export("first_moving_average.wav")
-print('created first_moving_average.wav')
-
-W = 3
-moving_average(W)
-print('all done, created output.wav')
-"""
-    program = translate(source)
-    print(json.dumps(program, indent=4))
+    except Exception as e:
+        raise SystemExit(f"Error: {e}")
