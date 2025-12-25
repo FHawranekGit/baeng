@@ -4,7 +4,7 @@ import sys
 import json
 import re
 
-# Creation of baengParser.py was strongly assisted by AI.
+# Creation of baengParser.py was assisted by AI.
 
 def try_number(s):
     """Return int/float if s is a numeric literal, otherwise None.
