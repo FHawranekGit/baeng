@@ -20,7 +20,7 @@
 			["reflections", ["t"]],
 			["define", "t", "t + 10"]
 		]],
-        ["print", "done!"]
+        ["print", "'done!'"]
 	]
 }
 

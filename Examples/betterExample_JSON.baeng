@@ -5,10 +5,10 @@
 		"PARAMS": ["period", "power"],
 		"CODE": [
 			["if", "SAMPLEPOS % period == 0 and SAMPLEPOS != 0", [
-				["setSample", "SAMPLEPOS", "- (period / SAMPLEPOS) ** 1.2"]
+				["setSample", "SAMPLEPOS", "- (period / SAMPLEPOS) ** power"]
 			]],
             ["if", "SAMPLEPOS / 2 % period == 0 and SAMPLEPOS != 0", [
-				["setSample", "SAMPLEPOS", "(period / SAMPLEPOS) ** 1.2"]
+				["setSample", "SAMPLEPOS", "(period / SAMPLEPOS) ** power"]
 			]]
         ]
 	},
@@ -50,7 +50,7 @@
 	"CODE": [
         ["define", "T", 800],
         ["define", "P", 1.2],
-        ["initial_reflections", {"period": "T", "power": "P"}],
+        ["initial_reflections", ["T", "P"]],
         ["export", "first_initial_reflections.wav"],
         ["print", "'created first_initial_reflections.wav'"],
 
