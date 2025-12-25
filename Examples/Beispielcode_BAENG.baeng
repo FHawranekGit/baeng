@@ -1,0 +1,21 @@
+set IR: (16000, 1, "output.wav")
+
+func reflections(T):
+    if SAMPLEPOS % T:
+        setSample(SAMPLEPOS, 0.5)
+
+    currentVal = readSample(SAMPLEPOS)
+
+    if abs(currentVal) < 0.5:
+        setSample(SAMPLEPOS, currentVal + 0.1)
+
+
+reflections(5)
+export("test.wav")
+t = 150
+
+while abs(IR[0]) < 0.5:
+    reflections(t)
+    t = t + 10
+
+print('done!')
