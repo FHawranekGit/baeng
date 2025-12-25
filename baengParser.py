@@ -1,11 +1,24 @@
+#!/usr/bin/env python3
+
 import sys
 import json
 import re
 
-# TODO: parts still AI slob but working. Check everything and edit comments.
+# Creation of baengParser.py was strongly assisted by AI.
 
 def try_number(s):
-    """Return int/float if s is a numeric literal, otherwise None."""
+    """Return int/float if s is a numeric literal, otherwise None.
+
+    Parameters
+    ----------
+    s : str
+        String that might be numeric literal
+
+    Returns
+    -------
+    out : int / float / None
+        Numeric contained in s as the correct type
+    """
     try:
         if "." in s:
             return float(s)
@@ -14,19 +27,59 @@ def try_number(s):
     except Exception:
         return None
 
+
 def is_quoted(s):
+    """
+    Check if a string is enclosed in quotes (either single or double).
+
+    Parameters
+    ----------
+    s : str
+        String to check for surrounding quotes
+
+    Returns
+    -------
+    out : bool
+        True if the string is enclosed in matching quotes, False otherwise
+    """
     s = s.strip()
     return (s.startswith('"') and s.endswith('"')) or (s.startswith("'") and s.endswith("'"))
 
+
 def strip_quotes(s):
+    """
+    Remove surrounding quotes (single or double) from a string if present.
+
+    Parameters
+    ----------
+    s : str
+        String that may be enclosed in quotes
+
+    Returns
+    -------
+    out : str
+        String with surrounding quotes removed, or the original string if not quoted
+    """
     s = s.strip()
     if is_quoted(s):
         return s[1:-1]
     return s
 
+
 def split_args_top_level(s):
     """
-    Split by commas at top level (not inside parentheses).
+    Split a string into a list of arguments, using commas as separators only at the top level.
+    Ignores commas inside parentheses, allowing for nested expressions.
+
+    Parameters
+    ----------
+    s : str
+        String containing comma-separated arguments, possibly with nested parentheses
+
+    Returns
+    -------
+    out : list[str]
+        List of top-level arguments, stripped of surrounding whitespace
     """
     args = []
     cur = ""
@@ -50,15 +103,46 @@ def split_args_top_level(s):
         args.append(cur.strip())
     return args
 
+
 _simple_call_re = re.compile(r'^\s*([A-Za-z_]\w*)\s*\(\s*([^\)]*)\s*\)\s*$')
+"""
+Regular expression to match simple function calls in a string.
+This regex identifies function calls of the form `func_name(arg1, arg2, ...)`,
+capturing the function name and its arguments as separate groups.
+
+- `^\s*` matches optional leading whitespace.
+- `([A-Za-z_]\w*)` captures the function name (starting with a letter or underscore, followed by alphanumeric characters).
+- `\s*\(\s*` matches an opening parenthesis, allowing optional whitespace.
+- `([^\)]*)` captures all characters inside the parentheses (the arguments), except closing parentheses.
+- `\s*\)\s*` matches a closing parenthesis, allowing optional whitespace.
+- `\s*$` matches optional trailing whitespace.
+
+This pattern is used to parse function calls like `readSample(SAMPLEPOS - i)`
+into the function name (`readSample`) and its arguments (`SAMPLEPOS - i`).
+"""
+
 
 def parse_atom(expr):
     """
-    Convert an atomic expression into the proper JSON form:
-      - numeric literals -> numbers
-      - quoted strings -> unquoted strings
-      - simple function calls (e.g., readSample(SAMPLEPOS - i)) -> ["fname", "arg"]
-      - complex expressions (e.g., int(T_small / 3)) -> raw string
+    Parse an atomic expression into a structured format suitable for JSON representation.
+    This function categorizes expressions into numeric literals, quoted strings, simple function calls,
+    or complex expressions, and returns them in the appropriate format for further processing.
+
+    - Numeric literals (e.g., `42`, `3.14`) are converted to Python `int` or `float`.
+    - Quoted strings (e.g., `"hello"`, `'world'`) are stripped of their surrounding quotes.
+    - Simple function calls (e.g., `readSample(SAMPLEPOS - i)`) are converted to a list format:
+      `["readSample", "SAMPLEPOS - i"]`.
+    - Complex expressions (e.g., `int(T_small / 3)`) are returned as raw strings.
+
+    Parameters
+    ----------
+    expr : str
+        The expression to parse, which may be a numeric literal, quoted string, function call, or complex expression.
+
+    Returns
+    -------
+    out : int | float | str | list
+        As described above
     """
     e = expr.strip()
 
@@ -71,7 +155,7 @@ def parse_atom(expr):
     if is_quoted(e):
         return strip_quotes(e)
 
-    # Check if the expression is a simple function call (e.g., readSample(SAMPLEPOS - i))
+    # simple function call?
     m = _simple_call_re.match(e)
     if m:
         fname = m.group(1)
@@ -79,7 +163,7 @@ def parse_atom(expr):
 
         # Only parse as a list if the function is a known simple function (e.g., readSample)
         # and the argument does not contain complex expressions (e.g., operators)
-        if fname in ["readSample"]:  # Add other simple functions here
+        if fname in ["readSample"]:  # Add other simple functions here if necessary
             if arg_text == "":
                 return [fname, []]
             parts = split_args_top_level(arg_text)
@@ -95,43 +179,73 @@ def parse_atom(expr):
     return e
 
 
-
 def parse_arg_list(s):
     """
-    Parse comma-separated args from a function call line, return a list of parsed atoms.
+    Split and parse a comma-separated argument string into a list of parsed atoms.
+    Uses `split_args_top_level` to split arguments and `parse_atom` to parse each argument.
+
+    Parameters
+    ----------
+    s : str
+        Comma-separated argument string (e.g., "arg1, arg2, func(arg3)")
+
+    Returns
+    -------
+    out : list
+        Parsed arguments as List (numbers, strings, or lists for function calls)
     """
     parts = split_args_top_level(s)
     return [parse_atom(p) for p in parts if p != ""]
 
-# -------------------------
-# Main indentation-based parser
-# -------------------------
 
 def parse_block(lines, i=0, indent=0):
     """
-    Parse lines starting at index i that are indented at least `indent` spaces.
-    Returns (code_list, new_index).
+    Parse a block of indented code lines into a structured list of commands.
+    Recursively processes nested blocks based on indentation level.
+
+    Parameters
+    ----------
+    lines : list[str]
+        List of code lines to parse
+    i : int, optional
+        Starting line index (default: 0)
+    indent : int, optional
+        Current indentation level (default: 0)
+
+    Returns
+    -------
+    code : list
+        Parsed code block as a list of commands
+    i : int
+        The index of the next line to process
     """
     code = []
     n = len(lines)
+
     while i < n:
         raw = lines[i]
+
         if raw.strip() == "":
             i += 1
             continue
         cur_indent = len(raw) - len(raw.lstrip(" "))
+
         if cur_indent < indent:
             # end of this block
             return code, i
+
         line = raw.strip()
 
-        # set IR: (16000, 1, "output.wav")
+        # set IR: (fs, duration, "filename.wav")
         if line.startswith("set IR:"):
             m = re.match(r"set IR:\s*\((.*)\)\s*$", line)
+
             if not m:
                 raise ValueError(f"Malformed IR line: {raw}")
+
             parts = split_args_top_level(m.group(1))
             parsed = []
+
             for p in parts:
                 p = p.strip()
                 if is_quoted(p):
@@ -143,7 +257,8 @@ def parse_block(lines, i=0, indent=0):
                     else:
                         # fallback to string
                         parsed.append(strip_quotes(p))
-            # IR is stored at top-level in final assemble step; keep as special marker
+
+            # IR is stored at top-level in final assemble step
             code.append(("__IR__", parsed))
             i += 1
             continue
@@ -151,12 +266,14 @@ def parse_block(lines, i=0, indent=0):
         # function definition: func name(arg1, arg2):
         if line.startswith("func "):
             m = re.match(r"func\s+([A-Za-z_]\w*)\s*\(\s*([A-Za-z0-9_,\s]*)\)\s*:\s*$", line)
+
             if not m:
                 raise ValueError(f"Malformed func def: {raw}")
+
             fname = m.group(1)
             params = [p.strip() for p in m.group(2).split(",") if p.strip()]
             body, new_i = parse_block(lines, i + 1, indent + 4)
-            # body already in JSON-style lists; attach under a dict per your IR layout
+
             code.append(("__FUNC__", fname, params, body))
             i = new_i
             continue
@@ -168,6 +285,7 @@ def parse_block(lines, i=0, indent=0):
             code.append(["if", cond, body])
             i = new_i
             continue
+
         if line.startswith("while ") and line.endswith(":"):
             cond = line[len("while "):-1].strip()
             body, new_i = parse_block(lines, i + 1, indent + 4)
@@ -205,7 +323,7 @@ def parse_block(lines, i=0, indent=0):
             i += 1
             continue
 
-        # readSample(...) used as expression will be handled via parse_atom when used as assignment RHS
+        # readSample(...) used as expression will be handled via parse_atom
 
         # assignment: a = expr
         if "=" in line and not line.startswith(("if ", "while ")):
@@ -222,10 +340,12 @@ def parse_block(lines, i=0, indent=0):
         if mcall:
             fname = mcall.group(1)
             arg_text = mcall.group(2).strip()
+
             if arg_text == "":
                 args = []
             else:
                 args = parse_arg_list(arg_text)
+
             code.append([fname, args])
             i += 1
             continue
@@ -235,11 +355,30 @@ def parse_block(lines, i=0, indent=0):
 
     return code, i
 
-# -------------------------
-# Top-level translate function
-# -------------------------
 
 def translate(source_text):
+    """
+    Parse source text into an intermediate representation, functions, and main code.
+    Splits the input source into lines, parses them into structured
+    blocks, and organizes the result into a dictionary.
+
+    Parameters
+    ----------
+    source_text : str
+        Full source code text to be translated and parsed.
+
+    Returns
+    -------
+    result : dict
+        Dictionary with the following structure:
+        - "IR": list
+            Intermediate representation block (empty list if not present).
+        - "<function_name>": dict
+            For each user-defined function, a dictionary with keys
+            "PARAMS" (list) and "CODE" (list).
+        - "CODE": list
+            Main (top-level) code not belonging to IR or a function.
+    """
     lines = source_text.splitlines()
     parsed, _ = parse_block(lines, 0, 0)
 
