@@ -211,20 +211,22 @@ class Baeng:
         # evaluate expression to value
         evaluated_value = self._fetch_parameter(value, scope=scope)
 
-        # TODO: remain global if variable already in global
-        if scope == "local":
-            # add variable to local variables of the deepest scope
-            self.local_variables[-1].update({name: evaluated_value})
-
-        elif scope == "stay_local":
-            if self.local_variables:
-                self.local_variables[-1][name] = evaluated_value
-            else:
+        if scope in ["local", "stay_local"]:
+            # scope inside function
+            if name in self.global_vars:
+                # scope inside function, but global variable is changed
                 self.global_vars[name] = evaluated_value
+
+            else:
+                # scope inside function, but local variable gets changed or created
+                self.local_variables[-1][name] = evaluated_value
 
         elif scope == "global":
             # add variable to the global variables
-            self.global_vars.update({name: evaluated_value})
+            self.global_vars[name] = evaluated_value
+
+        else:
+            raise NotImplementedError(f"unknown scope {scope}")
 
     def _set_sample_op(self, key, value, scope):
         """
