@@ -397,6 +397,7 @@ class Baeng:
             # pack parameter names and values to dict
             return dict(zip(parameter_names, parameter_values))
 
+        # TODO: parser can't interpret keyword args
         elif type(code_line[1]) is dict:
             # check if all required parameters are given
             for parameter_name in parameter_names:
