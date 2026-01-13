@@ -462,7 +462,7 @@ class Baeng:
 
                     new_parameters = self._evaluate_function_parameters(code_line, scope=scope)
 
-                    for sample_position in range(self.IR.fs * self.IR.duration):
+                    for sample_position in range(len(self.IR.data)):
                         # iterate over each sample
 
                         # safe current sample_position in attributes
