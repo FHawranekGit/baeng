@@ -48,6 +48,10 @@ class ImpulseResponse:
             Sample value of the impulse response at the selected index
         """
 
+        if type(index) is float:
+            # round subsamples to nearest sample
+            index = int(round(index))
+
         return self.data[index]
 
     def __setitem__(self, index: int, value: float):
@@ -61,6 +65,10 @@ class ImpulseResponse:
         value : float
             Value written to the selected sample
         """
+
+        if type(index) is float:
+            # round subsamples to nearest sample
+            index = int(round(index))
 
         self.data[index] = value
 
@@ -232,7 +240,6 @@ class Baeng:
             current scope when calling "setSample"
         """
 
-        # TODO: fix error if index is float (e.g. 1.0)
         # evaluate expression to get index
         index = self._fetch_parameter(key, scope=scope)
 
@@ -256,7 +263,6 @@ class Baeng:
             Sample value of the impulse response at the selected key
         """
 
-        # TODO: fix error if index is float (e.g. 1.0)
         # evaluate expression to get index
         index = self._fetch_parameter(key, scope=scope)
 
