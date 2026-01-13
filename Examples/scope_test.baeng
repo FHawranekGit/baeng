@@ -1,0 +1,26 @@
+set IR: (16000, 0.001, "output.wav")
+
+
+func function(parameter_var):
+    print(f"param: {parameter_var}")
+    print(f"glob: {global_var}")
+
+    global_var = 2
+
+    if SAMPLEPOS == 0:
+        parameter_var = 1000
+        print("changed parameter_var to 1000")
+
+        setSample(0.1, 1)
+        smpl = readSample(0.1)
+        print(f"Sample @ 0.1: {smpl}")
+
+    print("")
+
+
+global_var = "'orig. glbv'"
+
+function(3)
+
+print(global_var)
+print(IR[0.0])
