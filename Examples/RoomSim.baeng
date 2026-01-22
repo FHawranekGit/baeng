@@ -1,4 +1,4 @@
-set IR: (44100, 0.8, "output.wav")
+set IR: (44100, 2, "outputDecay20.wav")
 
 
 func RoomSim(pre_delay, decay, size, density, recursion_number, fs):
@@ -15,7 +15,7 @@ func RoomSim(pre_delay, decay, size, density, recursion_number, fs):
 func RecursiveReflections(decay, size, density, fs):
     current_peak = readSample(SAMPLEPOS)
 
-    if current_peak > 0.001:
+    if abs(current_peak) > 0.001:
 
         reflection_sample_range = int(round(size * fs))
         reflection_number = int(round(density * size))
@@ -24,9 +24,9 @@ func RecursiveReflections(decay, size, density, fs):
         while i < reflection_number:
             reflection_sample = SAMPLEPOS + np.random.randint(reflection_sample_range)
             current_reflection_value = readSample(reflection_sample)
-            reflection_value = current_peak * np.exp(-decay * (reflection_sample - SAMPLEPOS) / fs) + current_reflection_value
+            reflection_value = - current_peak * np.exp(-decay * (reflection_sample - SAMPLEPOS) / fs) + current_reflection_value
 
             setSample(reflection_sample, reflection_value)
             i = i + 1
 
-RoomSim(0.01, 40, 0.8, 10, 20, 44100)
+RoomSim(0.01, 20, 2, 10, 20, 44100)
