@@ -321,6 +321,7 @@ class Baeng:
         all_variables.update(
             self.global_vars
         )  # global variables overwrite local duplicates
+        all_variables["np"] = np  # add numpy to namespace
 
         # TODO: add np random variable
         # add SAMPLEPOS and IR as variables

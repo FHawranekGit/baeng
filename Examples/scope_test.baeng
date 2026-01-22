@@ -15,6 +15,9 @@ func function(parameter_var):
         smpl = readSample(0.1)
         print(f"Sample @ 0.1: {smpl}")
 
+    a = np.random.randint(5)
+    print(f"random number: {a}")
+
     print("")
 
 
