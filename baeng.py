@@ -94,10 +94,22 @@ class ImpulseResponse:
             Output file path
         """
 
-        # TODO: check/handle data out of range [-1, 1] (np.clip?)
+        data = self.data.astype(np.float64)
 
-        # Scale float32 [-1.0, 1.0] to int16 [-32768, 32767]
-        pcm16 = (self.data * 32767).astype(np.int16)
+        # Remove NaN / Inf explicitly
+        data = np.nan_to_num(
+            data,
+            nan=0.0,
+            posinf=0.0,
+            neginf=0.0
+        )
+
+        peak = np.max(np.abs(data))
+
+        if peak > 0:
+            data = data / peak
+
+        pcm16 = (data * 32767).astype(np.int16)
 
         with wave.open(path, "wb") as w:
             # 1 channel - mono
