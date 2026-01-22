@@ -52,7 +52,12 @@ class ImpulseResponse:
             # round subsamples to nearest sample
             index = int(round(index))
 
-        return self.data[index]
+        if index < len(self.data):
+            # only write if index withing range of IR
+            # else ignore
+            return self.data[index]
+
+        return 0
 
     def __setitem__(self, index: int, value: float):
         """
@@ -70,7 +75,10 @@ class ImpulseResponse:
             # round subsamples to nearest sample
             index = int(round(index))
 
-        self.data[index] = value
+        if index < len(self.data):
+            # only write if index withing range of IR
+            # else ignore
+            self.data[index] = value
 
     def to_numpy(self) -> np.ndarray:
         """
