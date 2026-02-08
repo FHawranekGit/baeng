@@ -1,0 +1,2 @@
+set IR: (48000, 1.0, "output.wav")
+setSample(0, 1)
