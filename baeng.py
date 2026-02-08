@@ -527,14 +527,8 @@ if __name__ == "__main__":
     # fetch file path
     path = sys.argv[1]
 
-    # check if file is .baeng
-    if not path.endswith(".baeng"):
-        raise SystemExit("File is not a .baeng")
-
     try:
         # load script from file
-        # with open(path, "rt") as fh:
-        #    script = json.load(fh)
         with open(path, "rt") as fh:
             content = fh.read()
 
@@ -542,6 +536,10 @@ if __name__ == "__main__":
             # try opening as JSON
             script = json.loads(content)
         except json.JSONDecodeError:
+            # check if file is .baeng
+            if not path.endswith(".baeng"):
+                raise SystemExit("File is not a .baeng")
+
             # parse if not JSON
             script = translate(content)
 
