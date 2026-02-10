@@ -24,7 +24,8 @@ func RecursiveReflections(decay, size, density, fs):
         while i < reflection_number:
             reflection_sample = SAMPLEPOS + np.random.randint(reflection_sample_range)
             current_reflection_value = readSample(reflection_sample)
-            reflection_value = - current_peak * np.exp(-decay * (reflection_sample - SAMPLEPOS) / fs) + current_reflection_value
+            exp_factor = np.exp(-decay * (reflection_sample - SAMPLEPOS) / fs)
+            reflection_value = - current_peak * exp_factor + current_reflection_value
 
             setSample(reflection_sample, reflection_value)
             i = i + 1
