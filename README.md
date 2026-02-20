@@ -37,3 +37,6 @@ This project is licensed under the [GNU General Public License v3.0](https://www
 ## Contact
 
 For questions or feedback, please contact the authors via university email.
+
+Felix Hawranek: [felix.hawranek@student.tugraz.at](mailto:felix.hawranek@student.tugraz.at) \
+Moritz Pik: [moritz.pik@student.tugraz.at](mailto:moritz.pik@student.tugraz.at)
