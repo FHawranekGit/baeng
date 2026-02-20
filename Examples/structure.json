@@ -1,8 +1,0 @@
-{
-    "IR": [48000, 1.0, "output.wav"],
-    "foo": {
-        "PARAMS": ["bar1", "bar2"],
-		    "CODE": []
-    },
-    "CODE": []
-}

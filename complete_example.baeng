@@ -30,4 +30,5 @@ func RecursiveReflections(decay, size, density, fs):
             setSample(reflection_sample, reflection_value)
             i = i + 1
 
+
 RoomSim(0.01, 20, 2, 10, 20, 44100)
